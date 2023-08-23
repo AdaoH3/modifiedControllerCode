@@ -3,7 +3,7 @@
 #include <Mouse.h>
 
 #define DELAY            5  // Delay per loop in ms
-#define button           7
+#define button           7  // Button to switch modes (optional)
 
 int counter = 0;
 bool buttonPressed = false;
@@ -192,6 +192,7 @@ void doEncoderD()
   }
 }
 
+// button function to check if the button was pressed (optional to switch between modes)
 void buttonPress()
 {
    if (!buttonPressed)
