@@ -3,8 +3,12 @@
 #include <Mouse.h>
 
 #define DELAY            5  // Delay per loop in ms
+#define button           7
 
+int counter = 0;
+bool buttonPressed = false;
 
+void buttonPress();
 void doEncoderA();
 void doEncoderB();
 void doEncoderC();
@@ -30,6 +34,8 @@ void doEncoderD();
  
 void setup()
 {
+  Serial.begin(9600);
+  attachInterrupt(digitalPinToInterrupt(button), buttonPress, RISING); // Use interrupt for button press
   Keyboard.begin();
  
   pinMode(4, INPUT_PULLUP);
@@ -51,13 +57,12 @@ void setup()
   attachInterrupt(2, doEncoderA, CHANGE);
   attachInterrupt(3, doEncoderB, CHANGE);
  
-  Serial.begin(9600);
 }
  
 void loop() {
   
   if(digitalRead(4)==LOW){
-    Serial.print("a");
+    Keyboard.press('a');
   }
   if(digitalRead(4)==HIGH){
     Keyboard.release('a');
@@ -93,7 +98,7 @@ void loop() {
     Keyboard.release('f');
   }
   if(digitalRead(A5)==LOW){
-    Keyboard.press('g');
+      Keyboard.press('g');
   }
   if(digitalRead(A5)==HIGH){
     Keyboard.release('g');
@@ -114,18 +119,23 @@ void loop() {
  
   delay(DELAY);
 }
- 
+
+
 void doEncoderA()
 {
- 
   if( digitalRead(encoderPinA) != A_set )
   {  
     A_set = !A_set;
- 
-    if ( A_set && !B_set )
-      encoderPos[0] += 15;
- 
-    rotating[0] = false;  
+
+    if ( A_set && !B_set ){
+      if(counter == 0){
+        encoderPos[1] += 15;
+        rotating[1] = false;  
+      } else {
+        encoderPos[0] += 15;
+        rotating[0] = false;  
+      }
+    }
   }
 }
  
@@ -134,11 +144,16 @@ void doEncoderB()
  
   if( digitalRead(encoderPinB) != B_set ) {
     B_set = !B_set;
- 
-    if( B_set && !A_set )
-      encoderPos[0] -= 15;
- 
-    rotating[0] = false;
+
+    if( B_set && !A_set ){
+      if(counter == 0){
+        encoderPos[1] -= 15;
+        rotating[1] = false;
+      } else {
+          encoderPos[0] -= 15;
+          rotating[0] = false;
+      }
+   }
   }
 }
  
@@ -148,10 +163,15 @@ void doEncoderC()
   {  
     C_set = !C_set;
  
-    if ( C_set && !D_set )
-      encoderPos[0] -= 15;
- 
-    rotating[1] = false;
+    if ( C_set && !D_set ){
+      if(counter == 0){
+        encoderPos[0] -= 15;
+        rotating[0] = false;
+      } else {
+        encoderPos[0] -= 15;
+        rotating[1] = false;
+      }
+    }
   }
 }
  
@@ -160,9 +180,31 @@ void doEncoderD()
   if( digitalRead(encoderPinD) != D_set ) {
     D_set = !D_set;
  
-    if( D_set && !C_set )
-      encoderPos[0] += 15;
- 
-    rotating[1] = false;
+    if( D_set && !C_set ){
+      if(counter == 0){
+        encoderPos[0] += 15;
+        rotating[0] = false;
+      } else {
+        encoderPos[0] += 15;
+        rotating[1] = false;
+      }
+    }
   }
+}
+
+void buttonPress()
+{
+   if (!buttonPressed)
+   {
+      counter++;
+      buttonPressed = true;
+   }
+
+   delay(500); // Debouncing delay
+   buttonPressed = false;
+   if (counter >= 2)
+   {
+     counter = 0;
+   }
+// Serial.println(counter);
 }
