@@ -149,7 +149,7 @@ void doEncoderC()
     C_set = !C_set;
  
     if ( C_set && !D_set )
-      encoderPos[1] += 15;
+      encoderPos[0] -= 15;
  
     rotating[1] = false;
   }
@@ -161,7 +161,7 @@ void doEncoderD()
     D_set = !D_set;
  
     if( D_set && !C_set )
-      encoderPos[1] -= 15;
+      encoderPos[0] += 15;
  
     rotating[1] = false;
   }
